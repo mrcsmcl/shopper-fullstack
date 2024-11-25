@@ -2,6 +2,7 @@ import { Router } from "express";
 import { Client } from "@googlemaps/google-maps-services-js";
 import type { Request, Response } from "express";
 import Driver from "../models/Driver";
+import Ride from "../models/Ride";
 
 const router = Router();
 const googleMapsClient = new Client({});
@@ -80,6 +81,67 @@ router.post("/estimate", async (req: Request, res: Response): Promise<void> => {
     res.status(500).json({
       error_code: "INTERNAL_ERROR",
       error_description: "Failed to calculate route.",
+    });
+  }
+});
+
+router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
+  const { customer_id, origin, destination, distance, duration, driver, value } = req.body;
+
+  // Validações
+  if (!customer_id || !origin || !destination || !distance || !duration || !driver || !value) {
+    res.status(400).json({
+      error_code: "INVALID_DATA",
+      error_description: "All fields are required.",
+    });
+    return;
+  }
+
+  if (origin === destination) {
+    res.status(400).json({
+      error_code: "INVALID_DATA",
+      error_description: "Origin and destination cannot be the same.",
+    });
+    return;
+  }
+
+  try {
+    // Buscar motorista
+    const selectedDriver = await Driver.findByPk(driver.id);
+    if (!selectedDriver) {
+      res.status(404).json({
+        error_code: "DRIVER_NOT_FOUND",
+        error_description: "The specified driver does not exist.",
+      });
+      return;
+    }
+
+    // Verificar se a distância é válida para o motorista
+    if (distance < selectedDriver.min_distance) {
+      res.status(406).json({
+        error_code: "INVALID_DISTANCE",
+        error_description: `Distance must be at least ${selectedDriver.min_distance} km for this driver.`,
+      });
+      return;
+    }
+
+    // Salvar a viagem no banco de dados
+    const newRide = await Ride.create({
+      customer_id,
+      origin,
+      destination,
+      distance,
+      duration,
+      driver_id: driver.id,
+      value,
+    });
+
+    res.status(200).json({ success: true, ride_id: newRide.id });
+  } catch (error) {
+    console.error("Error confirming ride:", error);
+    res.status(500).json({
+      error_code: "INTERNAL_ERROR",
+      error_description: "Failed to confirm ride.",
     });
   }
 });

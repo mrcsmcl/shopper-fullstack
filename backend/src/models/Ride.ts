@@ -20,7 +20,7 @@ Ride.init(
       autoIncrement: true,
     },
     customer_id: {
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
       allowNull: false,
     },
     origin: {
