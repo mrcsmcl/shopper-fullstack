@@ -4,6 +4,7 @@ import "./models/User";
 import "./models/Driver";
 import "./models/Ride";
 import seedDrivers from "./seeds/seedDrivers";
+import rideRoutes from "./routes/ride";
 
 const app = express();
 const PORT = 8080;
@@ -13,6 +14,9 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("API is running!");
 });
+
+// Rotas
+app.use("/ride", rideRoutes);
 
 // Sincronizar banco de dados
 sequelize
