@@ -3,6 +3,7 @@ import { Client } from "@googlemaps/google-maps-services-js";
 import type { Request, Response } from "express";
 import Driver from "../models/Driver";
 import Ride from "../models/Ride";
+import { Op } from "sequelize";
 
 const router = Router();
 const googleMapsClient = new Client({});
@@ -145,5 +146,78 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
     });
   }
 });
+
+
+router.get("/:customer_id", async (req: Request, res: Response): Promise<void> => {
+    const { customer_id } = req.params;
+    const driver_id = req.query.driver_id as string | undefined; // Cast para string
+  
+    if (!customer_id) {
+      res.status(400).json({
+        error_code: "INVALID_DATA",
+        error_description: "Customer ID is required.",
+      });
+      return;
+    }
+  
+    try {
+      // Verificar se o motorista é válido, caso informado
+      if (driver_id) {
+        const driverExists = await Driver.findByPk(driver_id);
+        if (!driverExists) {
+          res.status(400).json({
+            error_code: "INVALID_DRIVER",
+            error_description: "The specified driver does not exist.",
+          });
+          return;
+        }
+      }
+  
+      // Buscar viagens do cliente
+      const rides = await Ride.findAll({
+        where: {
+          customer_id,
+          ...(driver_id && { driver_id: parseInt(driver_id, 10) }), // Garantir que seja um número
+        },
+        include: [
+          {
+            model: Driver,
+            as: "driver",
+            attributes: ["id", "name"],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+  
+      if (rides.length === 0) {
+        res.status(404).json({
+          error_code: "NO_RIDES_FOUND",
+          error_description: "No rides found for this customer.",
+        });
+        return;
+      }
+  
+      res.status(200).json({
+        customer_id,
+        rides: rides.map((ride) => ({
+          id: ride.id,
+          date: ride.createdAt, // Usar a propriedade criada
+          origin: ride.origin,
+          destination: ride.destination,
+          distance: ride.distance,
+          duration: ride.duration,
+          driver: ride.driver, // Incluir motorista associado
+          value: ride.value,
+        })),
+      });
+    } catch (error) {
+      console.error("Error fetching rides:", error);
+      res.status(500).json({
+        error_code: "INTERNAL_ERROR",
+        error_description: "Failed to fetch rides.",
+      });
+    }
+  });
+  
 
 export default router;
