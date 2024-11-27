@@ -72,7 +72,7 @@ router.post("/estimate", async (req: Request, res: Response): Promise<void> => {
         latitude: route.legs[0].end_location.lat,
         longitude: route.legs[0].end_location.lng,
       },
-      distance: distanceInKm,
+      distance: distanceInMeters,
       duration,
       options: availableDrivers,
       routeResponse: routeResponse.data,
@@ -137,7 +137,7 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
       value,
     });
 
-    res.status(200).json({ success: true, ride_id: newRide.id });
+    res.status(200).json({ success: true});
   } catch (error) {
     console.error("Error confirming ride:", error);
     res.status(500).json({
