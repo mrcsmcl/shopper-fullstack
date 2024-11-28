@@ -77,7 +77,6 @@ Ride.init(
   }
 );
 
-// Associação com o modelo Driver
 Ride.belongsTo(Driver, { foreignKey: "driver_id", as: "driver" });
 
 export default Ride;

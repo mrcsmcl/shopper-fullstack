@@ -17,21 +17,18 @@ app.get("/", (req, res) => {
   res.send("API is running!");
 });
 
-// Rotas
 app.use("/ride", rideRoutes);
 
-// Sincronizar banco de dados
 sequelize
-  .sync({ alter: true }) // Cria/atualiza as tabelas
+  .sync({ alter: true })
   .then(async () => {
     console.log("Database synced successfully.");
-    await seedDrivers(); // Popula o banco com os dados iniciais
+    await seedDrivers();
   })
   .catch((err) => {
     console.error("Error syncing database:", err);
   });
 
-// Inicializar o servidor
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

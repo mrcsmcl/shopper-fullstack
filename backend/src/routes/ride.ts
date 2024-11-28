@@ -29,7 +29,6 @@ router.post("/estimate", async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    // Chamar a API do Google Maps para calcular rota
     const routeResponse = await googleMapsClient.directions({
       params: {
         origin,
@@ -42,10 +41,8 @@ router.post("/estimate", async (req: Request, res: Response): Promise<void> => {
     const distanceInMeters = route.legs[0].distance.value;
     const duration = route.legs[0].duration.text;
 
-    // Converter distância para quilômetros
     const distanceInKm = distanceInMeters / 1000;
 
-    // Buscar motoristas disponíveis
     const drivers = await Driver.findAll();
     const availableDrivers = drivers
       .filter((driver) => distanceInKm >= driver.min_distance)
@@ -107,7 +104,6 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    // Buscar motorista
     const selectedDriver = await Driver.findByPk(driver.id);
     if (!selectedDriver) {
       res.status(404).json({
@@ -117,7 +113,6 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Verificar se a distância é válida para o motorista
     if (distance < selectedDriver.min_distance) {
       res.status(406).json({
         error_code: "INVALID_DISTANCE",
@@ -126,7 +121,6 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    // Salvar a viagem no banco de dados
     const newRide = await Ride.create({
       customer_id,
       origin,
@@ -150,7 +144,7 @@ router.patch("/confirm", async (req: Request, res: Response): Promise<void> => {
 
 router.get("/:customer_id", async (req: Request, res: Response): Promise<void> => {
     const { customer_id } = req.params;
-    const driver_id = req.query.driver_id as string | undefined; // Cast para string
+    const driver_id = req.query.driver_id as string | undefined;
   
     if (!customer_id) {
       res.status(400).json({
@@ -161,7 +155,6 @@ router.get("/:customer_id", async (req: Request, res: Response): Promise<void> =
     }
   
     try {
-      // Verificar se o motorista é válido, caso informado
       if (driver_id) {
         const driverExists = await Driver.findByPk(driver_id);
         if (!driverExists) {
@@ -173,11 +166,10 @@ router.get("/:customer_id", async (req: Request, res: Response): Promise<void> =
         }
       }
   
-      // Buscar viagens do cliente
       const rides = await Ride.findAll({
         where: {
           customer_id,
-          ...(driver_id && { driver_id: parseInt(driver_id, 10) }), // Garantir que seja um número
+          ...(driver_id && { driver_id: parseInt(driver_id, 10) }),
         },
         include: [
           {
