@@ -4,7 +4,7 @@ import { GoogleMap, Polyline, Marker } from "@react-google-maps/api";
 type MapProps = {
   origin: { lat: number; lng: number };
   destination: { lat: number; lng: number };
-  route: string; // polyline encoded string
+  route: string;
 };
 
 const containerStyle = {
@@ -23,7 +23,6 @@ const Map: React.FC<MapProps> = ({ origin, destination, route }) => {
     isFinite(coord.lat) &&
     isFinite(coord.lng);
 
-  // Decodifica a rota e calcula os bounds
   useEffect(() => {
     if (window.google && window.google.maps.geometry && route) {
       const decodedPath = window.google.maps.geometry.encoding.decodePath(route);
@@ -33,7 +32,6 @@ const Map: React.FC<MapProps> = ({ origin, destination, route }) => {
       }));
       setPath(pathCoords);
 
-      // Calcula os bounds com base na rota e nos marcadores
       const newBounds = new window.google.maps.LatLngBounds();
       pathCoords.forEach((point) => newBounds.extend(point));
 
@@ -44,16 +42,10 @@ const Map: React.FC<MapProps> = ({ origin, destination, route }) => {
     }
   }, [route, origin, destination]);
 
-  // Logs para depuração
-  console.log("Origin:", origin);
-  console.log("Destination:", destination);
-  console.log("Path:", path);
-  console.log("Bounds:", bounds?.toString());
-
   return (
     <GoogleMap
       mapContainerStyle={containerStyle}
-      zoom={13} // Zoom inicial (será ajustado pelos bounds)
+      zoom={13}
       options={{
         disableDefaultUI: true,
         zoomControl: true,
@@ -61,7 +53,7 @@ const Map: React.FC<MapProps> = ({ origin, destination, route }) => {
       }}
       onLoad={(map) => {
         if (bounds) {
-          map.fitBounds(bounds); // Ajusta o mapa aos limites da rota
+          map.fitBounds(bounds);
         }
       }}
     >

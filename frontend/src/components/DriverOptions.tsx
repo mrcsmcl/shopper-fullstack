@@ -10,8 +10,8 @@ type DriverOptionsProps = {
   customerId: string;
   originAddress: string;
   destinationAddress: string;
-  duration: string; // Nova prop para duração
-  distance: number; // Nova prop para distância
+  duration: string;
+  distance: number;
   onConfirm: () => void;
 };
 
@@ -36,8 +36,8 @@ const DriverOptions: React.FC<DriverOptionsProps> = ({
         customer_id: customerId,
         origin: originAddress.toUpperCase(),
         destination: destinationAddress.toUpperCase(),
-        distance: distance, // Usando a distância da API
-        duration: duration, // Usando a duração da API
+        distance: distance,
+        duration: duration,
         driver: {
           id: driver.id,
           name: driver.name,
@@ -56,12 +56,6 @@ const DriverOptions: React.FC<DriverOptionsProps> = ({
     setShowPopup(false);
     onConfirm();
   };
-
-  console.log("Polyline recebido:", route);
-  console.log("Distância recebida:", distance);
-  console.log("Duração recebida:", duration);
-  console.log("Origem recebida:", origin);
-  console.log("Destino recebido:", destination);
 
   return (
     <div>

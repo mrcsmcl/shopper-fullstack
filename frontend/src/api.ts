@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:8080",
+  baseURL: process.env.REACT_APP_BACKEND_URL,
 });
 
 export const estimateRide = (data: { customer_id: string; origin: string; destination: string; }) =>

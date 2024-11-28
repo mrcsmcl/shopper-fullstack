@@ -11,14 +11,13 @@ const App: React.FC = () => {
   const [customerId, setCustomerId] = useState<string>("");
   const [originAddress, setOriginAddress] = useState<string>("");
   const [destinationAddress, setDestinationAddress] = useState<string>("");
-  const [duration, setDuration] = useState<string>(""); // Novo estado para duração
-  const [distance, setDistance] = useState<number>(0); // Novo estado para distância
+  const [duration, setDuration] = useState<string>("");
+  const [distance, setDistance] = useState<number>(0);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_API_KEY!,
-    libraries: ["geometry"], // Importante para usar o decodePath
+    libraries: ["geometry"],
   });
-  
 
   if (!isLoaded) return <div>Carregando mapa...</div>;
 
@@ -26,8 +25,8 @@ const App: React.FC = () => {
     setEstimateData(data);
     setOriginAddress(origin);
     setDestinationAddress(destination);
-    setDuration(data.duration); // Capturando a duração da API
-    setDistance(data.distance); // Capturando a distância da API
+    setDuration(data.duration);
+    setDistance(data.distance);
     setStep(2);
   };
 
@@ -42,7 +41,7 @@ const App: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Shopper Fullstack - FrontEnd</h1>
+      <h1>Shopper Fullstack - Frontend</h1>
       {step === 1 && (
         <div>
           <TripForm

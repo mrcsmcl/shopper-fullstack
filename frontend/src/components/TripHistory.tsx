@@ -1,13 +1,12 @@
 import React, { useState } from "react";
-import { getRideHistory } from "../api"; // Importa a API para obter o histórico de viagens
+import { getRideHistory } from "../api";
 
 const TripHistory: React.FC = () => {
-  const [customerId, setCustomerId] = useState(""); // Estado para o ID do cliente
-  const [driverId, setDriverId] = useState("all"); // Estado para o motorista selecionado
-  const [rides, setRides] = useState<any[]>([]); // Estado para as viagens realizadas
-  const [errorMessage, setErrorMessage] = useState(""); // Estado para mensagens de erro
+  const [customerId, setCustomerId] = useState("");
+  const [driverId, setDriverId] = useState("all");
+  const [rides, setRides] = useState<any[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Opções de motoristas (mock, substitua pela API se necessário)
   const driverOptions = [
     { id: "all", name: "Todos os Motoristas" },
     { id: "1", name: "Homer Simpson" },
@@ -21,13 +20,14 @@ const TripHistory: React.FC = () => {
       return;
     }
 
-    setErrorMessage(""); // Limpa mensagens de erro
+    setErrorMessage("");
+    setRides([]);
 
     try {
       const response = await getRideHistory(customerId, driverId !== "all" ? Number(driverId) : undefined);
       setRides(response.data.rides);
     } catch (error) {
-      setErrorMessage("Erro ao buscar o histórico de viagens.");
+      setErrorMessage("Nenhuma viagem encontrada ou usuário não existe.");
     }
   };
 
@@ -89,7 +89,7 @@ const TripHistory: React.FC = () => {
           </tbody>
         </table>
       ) : (
-        <p>Nenhuma viagem encontrada.</p>
+        <p></p>
       )}
     </div>
   );
